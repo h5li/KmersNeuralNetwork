@@ -63,7 +63,7 @@ net.apply(weights_init)
 criterion = nn.MSELoss()
 
 #Instantiate the gradient descent optimizer - use Adam optimizer with default parameters
-optimizer = optim.SGD(net.parameters(),lr = 0.0001,weight_decay=0.0001, momentum=0.9)
+optimizer = optim.Adam(net.parameters(),lr = 0.0001,weight_decay=0.0005)
 
 cell_type = 5
 X = train_data.as_matrix()
