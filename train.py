@@ -91,11 +91,14 @@ for e in range(epochs):
     for i in range(len(train_X)//batch_size+1):
         if i*batch_size >= len(train_X):continue
         x = torch.tensor(train_X[i*batch_size:(i+1)*batch_size]).to(computing_device)
-        y = torch.tensor(train_Y[i*batch_size:(i+1)*batch_size]).view(-1,1).to(computing_device)
+        if not multiclass:
+            y = torch.tensor(train_Y[i*batch_size:(i+1)*batch_size]).view(-1,1).to(computing_device)
+        else:
+            y = torch.tensor(train_Y[i*batch_size:(i+1)*batch_size]).to(computing_device)
         optimizer.zero_grad()
 
         outputs = net(x.float())
-        #print(x.shape,outputs.shape,y.shape)
+        print(x.shape,outputs.shape,y.shape)
         #train_pred.append(outputs.item())
         #print(outputs.shape,y.float().shape)
         loss = torch.sqrt(criterion(outputs,y.float()))
@@ -118,7 +121,10 @@ for e in range(epochs):
 
         with torch.no_grad():
             x = torch.tensor(val_X[i*batch_size:(i+1)*batch_size]).to(computing_device)
-            y = torch.tensor(val_Y[i*batch_size:(i+1)*batch_size]).view(-1,1).to(computing_device)
+            if not multiclass:
+                y = torch.tensor(val_Y[i*batch_size:(i+1)*batch_size]).view(-1,1).to(computing_device)
+            else:
+                y = torch.tensor(val_Y[i*batch_size:(i+1)*batch_size]).to(computing_device)
             outputs = net(x.float())
             loss = torch.sqrt(criterion(outputs,y.float()))
             val_loss += loss.item()
