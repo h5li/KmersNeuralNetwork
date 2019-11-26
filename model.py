@@ -6,6 +6,8 @@ import torch.nn.init as torch_init
 import torch.optim as optim
 
 
+
+
 class Net(nn.Module):
 
     def __init__(self, input_dim,output_dim):
@@ -14,12 +16,12 @@ class Net(nn.Module):
         # kernel
         # an affine operation: y = Wx + b
         self.fc1 = nn.Linear(input_dim, output_dim)# 6*6 from image dimension
-        #self.fc2 = nn.Linear(1024, 128)
-        #self.fc3 = nn.Linear(128, output_dim)
+        #self.fc2 = nn.Linear(100, 16)
+        #self.fc3 = nn.Linear(16, output_dim)
 
     def forward(self, x):
         # Max pooling over a (2, 2) window
-        x = self.fc1(x)
+        x = F.tanh(self.fc1(x))
         #x = F.relu(self.fc2(x))
         #x = self.fc3(x)
         return x

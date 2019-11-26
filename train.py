@@ -16,7 +16,7 @@ from evaluate import *
 
 
 train_data = pd.read_csv('../../data/Kmers6_counts_600bp.csv')
-train_methys = pd.read_csv('../../data/Mouse_DMRs_counts_methylated.csv',header = None)
+train_methys = pd.read_csv('../../data/Mouse_DMRs_methylation_level.csv',header = None)
 
 def weights_init(m):
     classname = m.__class__.__name__
@@ -55,18 +55,9 @@ if shuffle_dataset :
     np.random.shuffle(indices)
 train_indices, val_indices = indices[split:], indices[:split]
 
-epochs = 100
-
-net = Net(train_data.shape[1],1).to(computing_device)
-net.apply(weights_init)
-
-criterion = nn.MSELoss()
-
-#Instantiate the gradient descent optimizer - use Adam optimizer with default parameters
-optimizer = optim.Adam(net.parameters(),lr = 0.0001,weight_decay=0.0005)
-
 cell_type = 5
 X = train_data.as_matrix()
+X = np.concatenate([X,np.ones((len(X),1))],axis = 1)
 train_X = X[train_indices]
 val_X = X[val_indices]
 Y = np.array(train_methys[cell_type])
@@ -74,13 +65,23 @@ Y = np.array(train_methys[cell_type])
 train_Y = Y[train_indices]
 val_Y = Y[val_indices]
 
+epochs = 200
+
+net = Net(X.shape[1],1).to(computing_device)
+net.apply(weights_init)
+
+criterion = nn.MSELoss()
+
+#Instantiate the gradient descent optimizer - use Adam optimizer with default parameters
+optimizer = optim.Adam(net.parameters(),lr = 0.0001,weight_decay=0.00001)
+
+
 
 print(train_X.shape,train_Y.shape,val_X.shape,val_Y.shape)
 
 for e in range(epochs):
 
     # Train data
-    optimizer.zero_grad()
 
     train_loss = 0
     batch_count = 0
@@ -88,8 +89,10 @@ for e in range(epochs):
         if i*batch_size >= len(train_X):continue
         x = torch.tensor(train_X[i*batch_size:(i+1)*batch_size]).to(computing_device)
         y = torch.tensor(train_Y[i*batch_size:(i+1)*batch_size]).view(-1,1).to(computing_device)
+        optimizer.zero_grad()
 
         outputs = net(x.float())
+        #print(x.shape,outputs.shape,y.shape)
         #train_pred.append(outputs.item())
         #print(outputs.shape,y.float().shape)
         loss = torch.sqrt(criterion(outputs,y.float()))
