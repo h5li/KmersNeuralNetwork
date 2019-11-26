@@ -12,6 +12,7 @@ from math import sqrt
 import sys
 
 from model import *
+from evaluate import *
 
 
 train_data = pd.read_csv('../../data/Kmers6_counts_600bp.csv')
@@ -85,10 +86,8 @@ for e in range(epochs):
         optimizer.step()
         batch_count += 1
     
-    sys.stdout.write('\rEpoch {}, Train Loss: {}'.format(e,train_loss/batch_count))
-    #sys.stdout.write('\rEpoch {}, Train R2: {}'.format(e,r2_score(train_Y,outputs)))
-    print("\n")
-
+    #train_result = evaluate(net,train_X,train_Y,computing_device)
+    print('Epoch {}, Train Batch Loss: {}, '.format(e,train_loss/batch_count))
     # Validate data
     val_loss = 0
     val_pred = []
@@ -102,9 +101,9 @@ for e in range(epochs):
             loss = torch.sqrt(criterion(outputs,y.float()))
             val_loss += loss.item()
             batch_count += 1
-    sys.stdout.write('\rEpoch {}, Val Loss: {}'.format(e,val_loss/batch_count))
-    #sys.stdout.write('\rEpoch {}, Val R2: {}'.format(e,r2_score(val_Y,val_pred)))
-    print("\n")
+    
+    val_result = evaluate(net,val_X,val_Y,computing_device)
+    print('\rEpoch {}, Val Loss: {}, Val R2 Score:{}'.format(e,val_loss/batch_count, val_result[1]))
 
 
 
