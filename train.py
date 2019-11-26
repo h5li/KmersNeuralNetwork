@@ -98,10 +98,11 @@ for e in range(epochs):
         optimizer.zero_grad()
 
         outputs = net(x.float())
-        print(x.shape,outputs.shape,y.shape)
+        #print(x.shape,outputs.shape,y.shape)
         #train_pred.append(outputs.item())
         #print(outputs.shape,y.float().shape)
         loss = torch.sqrt(criterion(outputs,y.float()))
+        #print(loss)
         #regularization_loss = 0
         #for param in net.parameters():
         #    regularization_loss += torch.sum(torch.abs(param))

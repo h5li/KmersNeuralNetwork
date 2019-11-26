@@ -1,4 +1,5 @@
 import torch
+import numpy as np
 import torch.nn.functional as func
 from tqdm import tqdm
 from sklearn.metrics import r2_score
@@ -26,8 +27,8 @@ def evaluateMultiClass(net,data,levels,computing_device):
             x = torch.tensor(x).to(computing_device)
             output = net(x.float())
 
-            pred.append(output.item())
-
+            pred.append(output)
+    print(np.array(pred).shape)
     #return math.sqrt(mean_squared_error(pred,levels)),r2_score(levels,pred)
 
 
