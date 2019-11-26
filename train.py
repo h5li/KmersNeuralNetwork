@@ -60,22 +60,25 @@ X = train_data.as_matrix()
 X = np.concatenate([X,np.ones((len(X),1))],axis = 1)
 train_X = X[train_indices]
 val_X = X[val_indices]
-Y = np.array(train_methys[cell_type])
+
+multiclass = True
+if multiclass:
+    Y = np.array(train_methys)
+else:
+    Y = np.array(train_methys[cell_type])
 
 train_Y = Y[train_indices]
 val_Y = Y[val_indices]
 
 epochs = 200
 
-net = Net(X.shape[1],1).to(computing_device)
+net = Net(X.shape[1],Y.shape[1]).to(computing_device)
 net.apply(weights_init)
 
 criterion = nn.MSELoss()
 
 #Instantiate the gradient descent optimizer - use Adam optimizer with default parameters
 optimizer = optim.Adam(net.parameters(),lr = 0.0001,weight_decay=0.00001)
-
-
 
 print(train_X.shape,train_Y.shape,val_X.shape,val_Y.shape)
 
@@ -121,8 +124,11 @@ for e in range(epochs):
             val_loss += loss.item()
             batch_count += 1
     
-    val_result = evaluate(net,val_X,val_Y,computing_device)
-    print('\rEpoch {}, Val Loss: {}, Val R2 Score:{}'.format(e,val_loss/batch_count, val_result[1]))
+    if not multiclass:
+        val_result = evaluate(net,val_X,val_Y,computing_device)
+        print('\rEpoch {}, Val Loss: {}, Val R2 Score:{}'.format(e,val_loss/batch_count, val_result[1]))
+    else:
+        evaluateMultiClass(net,val_X,val_Y,computing_device)
 
 
 
