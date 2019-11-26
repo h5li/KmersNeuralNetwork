@@ -1,6 +1,9 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import torch.nn.functional as func
+import torch.nn.init as torch_init
+import torch.optim as optim
 
 
 class Net(nn.Module):
@@ -10,9 +13,9 @@ class Net(nn.Module):
         # 1 input image channel, 6 output channels, 3x3 square convolution
         # kernel
         # an affine operation: y = Wx + b
-        self.fc1 = nn.Linear(input_dim, 120)  # 6*6 from image dimension
-        self.fc2 = nn.Linear(120, 84)
-        self.fc3 = nn.Linear(84, output_dim)
+        self.fc1 = nn.Linear(input_dim, 1024)  # 6*6 from image dimension
+        self.fc2 = nn.Linear(1024, 128)
+        self.fc3 = nn.Linear(128, output_dim)
 
     def forward(self, x):
         # Max pooling over a (2, 2) window
