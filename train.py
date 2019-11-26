@@ -18,6 +18,16 @@ from evaluate import *
 train_data = pd.read_csv('../../data/Kmers6_counts_600bp.csv')
 train_methys = pd.read_csv('../../data/Mouse_DMRs_counts_methylated.csv',header = None)
 
+def weights_init(m):
+    classname = m.__class__.__name__
+    if classname.find('Conv') != -1:
+        nn.init.normal_(m.weight.data, 0.0, 0.02)
+    elif classname.find('BatchNorm') != -1:
+        nn.init.normal_(m.weight.data, 1.0, 0.02)
+        nn.init.constant_(m.bias.data, 0)
+    elif classname.find('Linear') != -1:
+        nn.init.normal_(m.weight.data, 1.0, 0.02)
+        nn.init.constant_(m.bias.data, 1)
 
 # Check if your system supports CUDA
 use_cuda = torch.cuda.is_available()
@@ -48,6 +58,8 @@ train_indices, val_indices = indices[split:], indices[:split]
 epochs = 100
 
 net = Net(train_data.shape[1],1).to(computing_device)
+net.apply(weights_init)
+
 criterion = nn.MSELoss()
 
 #Instantiate the gradient descent optimizer - use Adam optimizer with default parameters
