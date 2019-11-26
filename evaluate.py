@@ -10,8 +10,8 @@ def evaluate(net,data,levels,computing_device):
     pred = []
     for x in data:
         with torch.no_grad():
-            x = x.to(computing_device)
-            output = net(x)
+            x = torch.tensor(x).to(computing_device)
+            output = net(x.float())
 
             pred.append(output.item())
 

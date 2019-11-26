@@ -45,13 +45,13 @@ if shuffle_dataset :
     np.random.shuffle(indices)
 train_indices, val_indices = indices[split:], indices[:split]
 
-epochs = 50
+epochs = 100
 
 net = Net(train_data.shape[1],1).to(computing_device)
 criterion = nn.MSELoss()
 
 #Instantiate the gradient descent optimizer - use Adam optimizer with default parameters
-optimizer = optim.Adam(net.parameters(),lr = 0.0001)
+optimizer = optim.SGD(net.parameters(),lr = 0.0001,weight_decay=0.0001, momentum=0.9)
 
 cell_type = 5
 X = train_data.as_matrix()
@@ -81,6 +81,10 @@ for e in range(epochs):
         #train_pred.append(outputs.item())
         #print(outputs.shape,y.float().shape)
         loss = torch.sqrt(criterion(outputs,y.float()))
+        #regularization_loss = 0
+        #for param in net.parameters():
+        #    regularization_loss += torch.sum(torch.abs(param))
+        #loss += regularization_loss
         train_loss += loss.item()
         loss.backward()
         optimizer.step()

@@ -13,15 +13,15 @@ class Net(nn.Module):
         # 1 input image channel, 6 output channels, 3x3 square convolution
         # kernel
         # an affine operation: y = Wx + b
-        self.fc1 = nn.Linear(input_dim, 1024)  # 6*6 from image dimension
-        self.fc2 = nn.Linear(1024, 128)
-        self.fc3 = nn.Linear(128, output_dim)
+        self.fc1 = nn.Linear(input_dim, output_dim)# 6*6 from image dimension
+        #self.fc2 = nn.Linear(1024, 128)
+        #self.fc3 = nn.Linear(128, output_dim)
 
     def forward(self, x):
         # Max pooling over a (2, 2) window
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        x = self.fc3(x)
+        x = self.fc1(x)
+        #x = F.relu(self.fc2(x))
+        #x = self.fc3(x)
         return x
 
     def num_flat_features(self, x):
