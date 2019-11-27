@@ -61,7 +61,7 @@ X = train_data.reshape(len(train_data),4,600)
 train_X = X[train_indices]
 val_X = X[val_indices]
 
-multiclass = True
+multiclass = False
 if multiclass:
     Y = np.array(train_methys)
 else:
@@ -78,7 +78,7 @@ net.apply(weights_init)
 criterion = nn.MSELoss()
 
 #Instantiate the gradient descent optimizer - use Adam optimizer with default parameters
-optimizer = optim.Adam(net.parameters(),lr = 0.0001,weight_decay=0.00001)
+optimizer = optim.Adam(net.parameters(),lr = 0.0001)
 
 print(train_X.shape,train_Y.shape,val_X.shape,val_Y.shape)
 
@@ -91,10 +91,10 @@ for e in range(epochs):
     for i in range(len(train_X)//batch_size+1):
         if i*batch_size >= len(train_X):continue
         x = torch.tensor(train_X[i*batch_size:(i+1)*batch_size]).to(computing_device)
-        if not multiclass:
-            y = torch.tensor(train_Y[i*batch_size:(i+1)*batch_size]).view(-1,1).to(computing_device)
-        else:
+        if multiclass:
             y = torch.tensor(train_Y[i*batch_size:(i+1)*batch_size]).to(computing_device)
+        else:
+            y = torch.tensor(train_Y[i*batch_size:(i+1)*batch_size]).view(-1,1).to(computing_device)
         optimizer.zero_grad()
 
         outputs = net(x.float())
@@ -122,17 +122,17 @@ for e in range(epochs):
 
         with torch.no_grad():
             x = torch.tensor(val_X[i*batch_size:(i+1)*batch_size]).to(computing_device)
-            if not multiclass:
-                y = torch.tensor(val_Y[i*batch_size:(i+1)*batch_size]).view(-1,1).to(computing_device)
-            else:
+            if multiclass:
                 y = torch.tensor(val_Y[i*batch_size:(i+1)*batch_size]).to(computing_device)
+            else:
+                y = torch.tensor(val_Y[i*batch_size:(i+1)*batch_size]).view(-1,1).to(computing_device)
             outputs = net(x.float())
             loss = torch.sqrt(criterion(outputs,y.float()))
             val_loss += loss.item()
             batch_count += 1
     
     if not multiclass:
-        val_result = evaluate(net,val_X,val_Y,computing_device)
+        val_result = evaluateCNN(net,val_X,val_Y,computing_device)
         print('\rEpoch {}, Val Loss: {}, Val R2 Score:{}'.format(e,val_loss/batch_count, val_result[1]))
     else:
         evaluateMultiClassCNN(net,val_X,val_Y,computing_device)

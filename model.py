@@ -33,10 +33,10 @@ class Net(nn.Module):
             num_features *= s
         return num_features
 
-num_filters = [21,20,15,7]
-filter_size = [3,3,3,5]
-stride = [2,2,2,2]
-padding = [1,1,1,1]
+num_filters = [32,8]
+filter_size = [3,6]
+stride = [2,2]
+padding = [1,1]
 
 class CNNnet(nn.Module):
     def __init__(self):
@@ -49,7 +49,8 @@ class CNNnet(nn.Module):
                         bias=False), 
 
             nn.ReLU(inplace=True),
-
+            nn.MaxPool1d(20), 
+            nn.BatchNorm1d(num_filters[0]),
             nn.Conv1d(num_filters[0], 
                       num_filters[1], 
                       filter_size[1],
@@ -59,27 +60,26 @@ class CNNnet(nn.Module):
 
             nn.BatchNorm1d(num_filters[1]),
             nn.ReLU(inplace=True),
-
-            nn.Conv1d(num_filters[1],  
-                      num_filters[2], 
-                      filter_size[2], 
-                      stride=stride[2], 
-                      padding=padding[2], 
-                      bias=False),
+            #nn.Conv1d(num_filters[1],  
+            #          num_filters[2], 
+            #          filter_size[2], 
+            #          stride=stride[2], 
+            #          padding=padding[2], 
+            #          bias=False),
                     
-            nn.BatchNorm1d(num_filters[2]),
-            nn.ReLU(inplace=True),
+            #nn.BatchNorm1d(num_filters[2]),
+            #nn.ReLU(inplace=True),
 
-            nn.Conv1d(num_filters[2], 
-                      num_filters[3], 
-                      filter_size[3], 
-                      stride=stride[3], 
-                      padding=padding[3], 
-                      bias=False),
+            #nn.Conv1d(num_filters[2], 
+            #          num_filters[3], 
+            #          filter_size[3], 
+            #          stride=stride[3], 
+            #          padding=padding[3], 
+            #          bias=False),
 
-            nn.BatchNorm1d(num_filters[3]),
+            #nn.BatchNorm1d(num_filters[3]),
 
-            nn.ReLU(inplace=True),
+            #nn.ReLU(inplace=True),
         )
         def getCNNOutputDim(InputSize, Padding, KernalSize, Stride):
             return ((InputSize + 2 * Padding - KernalSize)//Stride + 1)
@@ -93,9 +93,8 @@ class CNNnet(nn.Module):
 
         # CNN Output Dim = (Size + 2 * padding - kernal_size)/Stride + 1
         self.fc = nn.Sequential(
-            nn.Linear(finalOutputDim(),100),
             nn.ReLU(inplace=True),
-            nn.Linear(100, 16)
+            nn.Linear(num_filters[-1],1),
         )
 
     def num_flat_features(self, inputs):
@@ -112,5 +111,7 @@ class CNNnet(nn.Module):
 
     def forward(self, input):
         x = self.main(input)
+        # global avg pooling
+        x = torch.mean(x.view(x.size(0), x.size(1), -1), dim=2)
         x = x.view(-1, self.num_flat_features(x))
-        return self.fc(x)
+        return torch.sigmoid(self.fc(x))

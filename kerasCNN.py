@@ -30,6 +30,7 @@ import seaborn as sns
 from keras.losses import kullback_leibler_divergence
 
 import os
+import sys
 from sklearn.metrics import r2_score
 from tensorflow.python.keras.callbacks import EarlyStopping
 
@@ -42,6 +43,7 @@ ACTIVATION = 'linear'
 CALLBACKS = [EarlyStopping(monitor='val_loss', patience=5,mode = 'min')]
 
 def R2_score(y_true, y_pred):
+    sys.stdout.wirte("R2 score function")
     SS_res =  K.sum(K.square( y_true-y_pred )) 
     SS_tot = K.sum(K.square( y_true - K.mean(y_true) ) ) 
     return ( 1 - SS_res/(SS_tot) )
@@ -238,7 +240,7 @@ def train_model(data,train_labels,
     
      
     history = model.fit(data, train_labels, epochs=1000, callbacks = CALLBACKS,
-                        validation_split = 0.05,shuffle = True,batch_size=64,verbose=0)
+                        validation_split = 0.05,shuffle = True,batch_size=64,verbose=2)
     
     index = history.history['val_R2_score'].index(max(history.history['val_R2_score']))
 
@@ -246,6 +248,23 @@ def train_model(data,train_labels,
             history.history['val_R2_score'][index],
             history.history['loss'][index],
             history.history['val_loss'][index]]
+
+def get_model(data,train_labels,
+                num_conv_layers,num_filters,
+                filter_length,maxpool_size,
+                batchnorm,dropout,dense_activation,seqlen):
+    
+    model = Sequential()
+    model.add(Conv1D(filters=num_filters[0], kernel_size=filter_length[0],kernel_initializer = init,padding = 'same',
+                     input_shape=(seqlen,4), activation='relu'))
+    model_fn(model,num_conv_layers,num_filters,filter_length,maxpool_size,batchnorm,dropout,dense_activation)
+    
+    #filename = 'Filters:{0}_FilterSize:{1}_maxpoolSize:{2}_batchnorm:{3}_dropout:{4}%_DenseActivation:{5}'.format(            
+    #    num_filters,filter_length,maxpool_size,
+    #    batchnorm,int(dropout*100),dense_activation)
+    return model
+    
+     
 
 def binarize_level(level):
     processed_level = []
@@ -297,13 +316,25 @@ dropout = 0.25
 activation = 'linear'
 
 maxpool  = 3
-second_num_filters = 3
+second_num_filters = 8
 second_filter_size = 6
 
 seqlen = 600        
 
-model,result = train_model(train_X,train_Y,
+model = get_model(train_X,train_Y,
                             num_layers,
                             [filters,second_num_filters],
                             [filt_size,second_filter_size],
                             [maxpool],True,dropout,activation,seqlen)
+
+for e in range(100):
+    model.fit(train_X, train_Y, epochs=1,
+              shuffle = True,batch_size=64,verbose=2)
+    model.evaluate(val_X,val_Y,verbose = 2)
+    pred = model.predict(val_X)
+    score_num = 0 
+    for i in range(16):
+        sys.stdout.write("T:{} S:{:.4f} ".format(i,r2_score(val_Y[:,i],pred[:,i])))
+        score_num += r2_score(val_Y[:,i],pred[:,i])
+    sys.stdout.write(" SUM:{}".format(score_num))
+    sys.stdout.write("\n")
