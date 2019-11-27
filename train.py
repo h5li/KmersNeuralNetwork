@@ -70,7 +70,7 @@ else:
 train_Y = Y[train_indices]
 val_Y = Y[val_indices]
 
-epochs = 200
+epochs = 500
 
 net = Net(X.shape[1],Y.shape[1]).to(computing_device)
 net.apply(weights_init)
