@@ -56,8 +56,8 @@ if shuffle_dataset :
 train_indices, val_indices = indices[split:], indices[:split]
 
 cell_type = 5
-X = train_data.as_matrix()
-X = np.concatenate([X,np.ones((len(X),1))],axis = 1)
+X = train_data.reshape(len(train_data),4,600)
+#X = np.concatenate([X,np.ones((len(X),1))],axis = 1)
 train_X = X[train_indices]
 val_X = X[val_indices]
 
@@ -135,7 +135,7 @@ for e in range(epochs):
         val_result = evaluate(net,val_X,val_Y,computing_device)
         print('\rEpoch {}, Val Loss: {}, Val R2 Score:{}'.format(e,val_loss/batch_count, val_result[1]))
     else:
-        evaluateMultiClass(net,val_X,val_Y,computing_device)
+        evaluateMultiClassCNN(net,val_X,val_Y,computing_device)
 
 
 

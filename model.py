@@ -57,7 +57,7 @@ class CNNnet(nn.Module):
                       padding=padding[1], 
                       bias=False),
 
-            nn.BatchNorm2d(num_filters[1]),
+            nn.BatchNorm1d(num_filters[1]),
             nn.ReLU(inplace=True),
 
             nn.Conv1d(num_filters[1],  
@@ -67,7 +67,7 @@ class CNNnet(nn.Module):
                       padding=padding[2], 
                       bias=False),
                     
-            nn.BatchNorm2d(num_filters[2]),
+            nn.BatchNorm1d(num_filters[2]),
             nn.ReLU(inplace=True),
 
             nn.Conv1d(num_filters[2], 
@@ -77,7 +77,7 @@ class CNNnet(nn.Module):
                       padding=padding[3], 
                       bias=False),
 
-            nn.BatchNorm2d(num_filters[3]),
+            nn.BatchNorm1d(num_filters[3]),
 
             nn.ReLU(inplace=True),
         )
@@ -85,7 +85,7 @@ class CNNnet(nn.Module):
             return ((InputSize + 2 * Padding - KernalSize)//Stride + 1)
         
         def finalOutputDim():
-            inputSize = 224
+            inputSize = 600
 
             for i in range(len(num_filters)):
                 inputSize = getCNNOutputDim(inputSize,padding[i],filter_size[i],stride[i])
@@ -93,9 +93,9 @@ class CNNnet(nn.Module):
 
         # CNN Output Dim = (Size + 2 * padding - kernal_size)/Stride + 1
         self.fc = nn.Sequential(
-            nn.Linear(finalOutputDim(),600),
+            nn.Linear(finalOutputDim(),100),
             nn.ReLU(inplace=True),
-            nn.Linear(600, 16)
+            nn.Linear(100, 16)
         )
 
     def num_flat_features(self, inputs):
