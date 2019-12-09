@@ -171,7 +171,7 @@ for e in range(epochs):
         if pretrained:
             np.save('results/pytorchResultsPretrainedFilters{}Size{}.npy'.format(num_features_selected,num_filters), np.array(data))
         else:
-            np.save('results/pytorchResultsFilters{}Size{}.npy'.format(num_features_selected,num_filters), np.array(data))
+            np.save('results/pytorchResultsFilters{}Size{}.npy'.format(num_features_selected,filter_size), np.array(data))
 
         print(val_loss/batch_count,best_val,e,best_val_epoch)
         if val_loss/batch_count < best_val:
@@ -180,7 +180,7 @@ for e in range(epochs):
             if pretrained:
                 torch.save(net.state_dict(),'model_files/PretrainedFilters{}Size{}.pt'.format(num_features_selected,num_filters))
             else:
-                torch.save(net.state_dict(),'model_files/Filters{}Size{}.npy'.format(num_features_selected,num_filters))
+                torch.save(net.state_dict(),'model_files/Filters{}Size{}.npy'.format(num_features_selected,filter_size))
         elif e  - best_val_epoch > 10:
             print("Stop, Best Validation:{:.4f}, Best Validation Epoch:{}".format(best_val,best_val_epoch))
             break
