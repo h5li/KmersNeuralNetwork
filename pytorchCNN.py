@@ -45,7 +45,7 @@ else: # Otherwise, train on the CPU
 batch_size = 64
 validation_split = 0.2
 shuffle_dataset = True
-random_seed= 24
+random_seed= 6
 
 dataset_size = len(train_data)
 indices = list(range(dataset_size))
@@ -80,10 +80,10 @@ print(net)
 criterion = nn.MSELoss()
 
 #Instantiate the gradient descent optimizer - use Adam optimizer with default parameters
-optimizer = optim.Adam(net.parameters(),lr = 0.0001)
+optimizer = optim.Adam(net.parameters(),lr = 0.0005)
 
 print(train_X.shape,train_Y.shape,val_X.shape,val_Y.shape)
-
+data = [[],[]]
 for e in range(epochs):
 
     # Train data
@@ -116,6 +116,7 @@ for e in range(epochs):
     
     #train_result = evaluate(net,train_X,train_Y,computing_device)
     print('Epoch {}, Train Batch Loss: {}, '.format(e,train_loss/batch_count))
+    data[0].append(train_loss/batch_count)
     # Validate data
     val_loss = 0
     val_pred = []
@@ -136,8 +137,13 @@ for e in range(epochs):
     if not multiclass:
         val_result = evaluateCNN(net,val_X,val_Y,computing_device)
         print('\rEpoch {}, Val Loss: {}, Val R2 Score:{}'.format(e,val_loss/batch_count, val_result[1]))
+        data[1].append(val_loss/batch_count)
+        #val_result = evaluateCNN(net,val_X,val_Y,computing_device)
+        #print('\rEpoch {}, Val Loss: {}, Val R2 Score:{}'.format(e,val_loss/batch_count, val_result[1]))
     else:
         evaluateMultiClassCNN(net,val_X,val_Y,computing_device)
+    
+    np.save('pytorchResults.npy', np.array(data))
 
 
 

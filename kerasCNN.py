@@ -220,7 +220,7 @@ def model_fn(model,num_conv_layers,num_filters,filter_length,maxpool_size,batchn
     if dropout:
         model.add(Dropout(dropout))
     
-    model.add(Dense(16, kernel_initializer=init, activation=dense_activation))
+    model.add(Dense(1, kernel_initializer=init, activation=dense_activation))
     model.compile(optimizer= Adam(lr = 0.005),
                   loss='mean_squared_error')
     
@@ -300,7 +300,7 @@ X = train_data
 train_X = X[train_indices]
 val_X = X[val_indices]
 
-multiclass = True
+multiclass = False
 if multiclass:
     Y = np.array(train_methys)
 else:
@@ -327,14 +327,20 @@ model = get_model(train_X,train_Y,
                             [filt_size,second_filter_size],
                             [maxpool],True,dropout,activation,seqlen)
 
+print(model.summary())
+
+
 for e in range(100):
-    model.fit(train_X, train_Y, epochs=1,
-              shuffle = True,batch_size=64,verbose=2)
+    model.fit(train_X, train_Y, epochs=10,
+              shuffle = True,batch_size=64,verbose=1)
     model.evaluate(val_X,val_Y,verbose = 2)
     pred = model.predict(val_X)
-    score_num = 0 
-    for i in range(16):
-        sys.stdout.write("T:{} S:{:.4f} ".format(i,r2_score(val_Y[:,i],pred[:,i])))
-        score_num += r2_score(val_Y[:,i],pred[:,i])
-    sys.stdout.write(" SUM:{}".format(score_num))
+    score_num = 0
+    if not multiclass:
+        sys.stdout.write("T:{} S:{:.4f} ".format(cell_type,r2_score(val_Y,pred)))
+         
+    #for i in range(16):
+    #    sys.stdout.write("T:{} S:{:.4f} ".format(i,r2_score(val_Y[:,i],pred[:,i])))
+    #    score_num += r2_score(val_Y[:,i],pred[:,i])
+    #sys.stdout.write(" SUM:{}".format(score_num))
     sys.stdout.write("\n")
