@@ -49,7 +49,7 @@ class CNNnet(nn.Module):
                         bias=False), 
 
             nn.ReLU(inplace=True),
-            nn.MaxPool1d(20), 
+            nn.MaxPool1d(3), 
             nn.BatchNorm1d(num_filters[0]),
             nn.Conv1d(num_filters[0], 
                       num_filters[1], 
