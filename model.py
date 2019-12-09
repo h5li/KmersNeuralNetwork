@@ -33,10 +33,10 @@ class Net(nn.Module):
             num_features *= s
         return num_features
 
-num_filters = [32,8]
-filter_size = [3,6]
+num_filters = [32,3]
+filter_size = [6,6]
 stride = [1,1]
-padding = [1,2]
+padding = [1,1]
 
 class CNNnet(nn.Module):
     def __init__(self):
@@ -49,7 +49,7 @@ class CNNnet(nn.Module):
                         bias=False), 
 
             nn.ReLU(inplace=True),
-            nn.MaxPool1d(3), 
+            nn.MaxPool1d(20), 
             nn.BatchNorm1d(num_filters[0]),
             nn.Conv1d(num_filters[0], 
                       num_filters[1], 
@@ -117,5 +117,5 @@ class CNNnet(nn.Module):
         x = torch.mean(x.view(x.size(0), x.size(1), -1), dim=2)
         #print(val,x[0,0])
         x = x.view(-1, self.num_flat_features(x))
-        return self.fc(x)
+        return torch.sigmoid(self.fc(x))
         #return torch.sigmoid(self.fc(x))
