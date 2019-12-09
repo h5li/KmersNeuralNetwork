@@ -39,11 +39,11 @@ stride = [1,1]
 padding = [1,1]
 
 class CNNnet(nn.Module):
-    def __init__(self):
+    def __init__(self,num_filt,filt_size):
         super(CNNnet, self).__init__()
         self.main = nn.Sequential(
-            nn.Conv1d(4, num_filters[0], 
-                        filter_size[0], 
+            nn.Conv1d(4, num_filt, 
+                        filt_size, 
                         stride=stride[0], 
                         padding=padding[0], 
                         bias=False), 

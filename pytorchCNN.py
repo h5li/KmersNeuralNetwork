@@ -86,12 +86,14 @@ val_Y = Y[val_indices]
 
 epochs = 500
 
-net = CNNnet().to(computing_device)
+num_features_selected = 32
+filter_size = 6
+
+net = CNNnet(num_features_selected,filter_size).to(computing_device)
 net.apply(weights_init)
 
 pretrained = True 
 if pretrained:
-    num_features_selected = 64
     features = np.load('LASSO_SelectedFeatures.npy')[:num_features_selected,2]
     matrices = []
     for f in features:
@@ -166,15 +168,18 @@ for e in range(epochs):
         print('\rEpoch {}, Val Loss: {}, Val R2 Score:{}'.format(e,val_loss/batch_count, val_result[1]))
         data[1].append(val_loss/batch_count)
         if pretrained:
-            np.save('results/pytorchResultsPretrainedFilters{}Size.npy'.format(num_selected_features), np.array(data))
+            np.save('results/pytorchResultsPretrainedFilters{}Size{}.npy'.format(num_features_selected,num_filters), np.array(data))
         else:
-            np.save('results/pytorchResultsFilters{}.npy'.format(num_selected_features), np.array(data))
+            np.save('results/pytorchResultsFilters{}Size{}.npy'.format(num_features_selected,num_filters), np.array(data))
 
         print(val_loss/batch_count,best_val,e,best_val_epoch)
         if val_loss/batch_count < best_val:
             best_val = val_loss/batch_count
             best_val_epoch = e
-            torch.save(net.state_dict(),'model_files/cnn.pt')
+            if pretrained:
+                torch.save(net.state_dict(),'model_files/PretrainedFilters{}Size{}.pt'.format(num_features_selected,num_filters))
+            else:
+                torch.save(net.state_dict(),'model_files/Filters{}Size{}.npy'.format(num_features_selected,num_filters))
         elif e  - best_val_epoch > 10:
             print("Stop, Best Validation:{:.4f}, Best Validation Epoch:{}".format(best_val,best_val_epoch))
             break
