@@ -75,6 +75,8 @@ epochs = 500
 net = CNNnet().to(computing_device)
 net.apply(weights_init)
 
+print(net)
+
 criterion = nn.MSELoss()
 
 #Instantiate the gradient descent optimizer - use Adam optimizer with default parameters
