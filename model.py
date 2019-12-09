@@ -35,7 +35,7 @@ class Net(nn.Module):
 
 num_filters = [32,8]
 filter_size = [3,6]
-stride = [2,2]
+stride = [1,1]
 padding = [1,1]
 
 class CNNnet(nn.Module):
@@ -60,6 +60,7 @@ class CNNnet(nn.Module):
 
             nn.BatchNorm1d(num_filters[1]),
             nn.ReLU(inplace=True),
+            nn.Dropout(p=0.25)
             #nn.Conv1d(num_filters[1],  
             #          num_filters[2], 
             #          filter_size[2], 
@@ -113,5 +114,7 @@ class CNNnet(nn.Module):
         x = self.main(input)
         # global avg pooling
         x = torch.mean(x.view(x.size(0), x.size(1), -1), dim=2)
+        print(x.shape)
         x = x.view(-1, self.num_flat_features(x))
-        return torch.sigmoid(self.fc(x))
+        return self.fc(x)
+        #return torch.sigmoid(self.fc(x))
