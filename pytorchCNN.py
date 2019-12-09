@@ -29,6 +29,20 @@ def weights_init(m):
         nn.init.normal_(m.weight.data, 1.0, 0.02)
         nn.init.constant_(m.bias.data, 1)
 
+def convertMotifToVector(motif):
+    matrix = []
+    for c in motif:
+        if c == 'A':
+            matrix.append([1,0,0,0])
+        elif c == 'C':
+            matrix.append([0,1,0,0])
+        elif c == 'G':
+            matrix.append([0,0,1,0])
+        else:
+            matrix.append([0,0,0,1])
+    #print(np.array(sequence_vector).shape)
+    return np.array(matrix)
+
 # Check if your system supports CUDA
 use_cuda = torch.cuda.is_available()
 
@@ -74,6 +88,18 @@ epochs = 500
 
 net = CNNnet().to(computing_device)
 net.apply(weights_init)
+
+pretrained = True
+if pretrained:
+    num_features_selected = 32
+    features = np.load('LASSO_SelectedFeatures.npy')[:num_features_selected,2]
+    matrices = []
+    for f in features:
+        matrices.append(convertMotifToVector(f))
+    matrices = np.concatenate(matrices)
+    with torch.no_grad():
+        print(net.main[0].weight.data.shape, torch.Tensor(matrices).shape)
+        net.main[0].weight.data = torch.Tensor(matrices)
 
 print(net)
 
