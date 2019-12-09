@@ -33,7 +33,7 @@ class Net(nn.Module):
             num_features *= s
         return num_features
 
-num_filters = [32,3]
+num_filters = [64,3]
 filter_size = [6,6]
 stride = [1,1]
 padding = [1,1]

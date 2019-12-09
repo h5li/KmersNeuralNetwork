@@ -41,7 +41,7 @@ def convertMotifToVector(motif):
         else:
             matrix.append([0,0,0,1])
     #print(np.array(sequence_vector).shape)
-    return np.array(matrix)
+    return np.array(matrix).T
 
 # Check if your system supports CUDA
 use_cuda = torch.cuda.is_available()
@@ -89,27 +89,28 @@ epochs = 500
 net = CNNnet().to(computing_device)
 net.apply(weights_init)
 
-pretrained = True
+pretrained = True 
 if pretrained:
-    num_features_selected = 32
+    num_features_selected = 64
     features = np.load('LASSO_SelectedFeatures.npy')[:num_features_selected,2]
     matrices = []
     for f in features:
         matrices.append(convertMotifToVector(f))
-    matrices = np.concatenate(matrices)
+    matrices = np.array(matrices)
     with torch.no_grad():
-        print(net.main[0].weight.data.shape, torch.Tensor(matrices).shape)
-        net.main[0].weight.data = torch.Tensor(matrices)
+        net.main[0].weight.data = torch.Tensor(matrices).to(computing_device)
 
 print(net)
 
 criterion = nn.MSELoss()
 
 #Instantiate the gradient descent optimizer - use Adam optimizer with default parameters
-optimizer = optim.Adam(net.parameters(),lr = 0.0005)
+optimizer = optim.Adam(net.parameters(),lr = 0.0003)
 
 print(train_X.shape,train_Y.shape,val_X.shape,val_Y.shape)
 data = [[],[]]
+best_val_epoch = 0
+best_val = float('Inf')
 for e in range(epochs):
 
     # Train data
@@ -164,12 +165,25 @@ for e in range(epochs):
         val_result = evaluateCNN(net,val_X,val_Y,computing_device)
         print('\rEpoch {}, Val Loss: {}, Val R2 Score:{}'.format(e,val_loss/batch_count, val_result[1]))
         data[1].append(val_loss/batch_count)
+        if pretrained:
+            np.save('results/pytorchResultsPretrainedFilters{}Size.npy'.format(num_selected_features), np.array(data))
+        else:
+            np.save('results/pytorchResultsFilters{}.npy'.format(num_selected_features), np.array(data))
+
+        print(val_loss/batch_count,best_val,e,best_val_epoch)
+        if val_loss/batch_count < best_val:
+            best_val = val_loss/batch_count
+            best_val_epoch = e
+            torch.save(net.state_dict(),'model_files/cnn.pt')
+        elif e  - best_val_epoch > 10:
+            print("Stop, Best Validation:{:.4f}, Best Validation Epoch:{}".format(best_val,best_val_epoch))
+            break
+            
         #val_result = evaluateCNN(net,val_X,val_Y,computing_device)
         #print('\rEpoch {}, Val Loss: {}, Val R2 Score:{}'.format(e,val_loss/batch_count, val_result[1]))
     else:
         evaluateMultiClassCNN(net,val_X,val_Y,computing_device)
     
-    np.save('pytorchResults.npy', np.array(data))
 
 
 
