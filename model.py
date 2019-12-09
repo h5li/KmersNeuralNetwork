@@ -50,8 +50,8 @@ class CNNnet(nn.Module):
 
             nn.ReLU(inplace=True),
             nn.MaxPool1d(20), 
-            nn.BatchNorm1d(num_filters[0]),
-            nn.Conv1d(num_filters[0], 
+            nn.BatchNorm1d(num_filt),
+            nn.Conv1d(num_filt, 
                       num_filters[1], 
                       filter_size[1],
                       stride=stride[1], 
