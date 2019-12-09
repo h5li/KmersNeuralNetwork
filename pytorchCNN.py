@@ -92,7 +92,8 @@ filter_size = 6
 net = CNNnet(num_features_selected,filter_size).to(computing_device)
 net.apply(weights_init)
 
-pretrained = True 
+#pretrained = True 
+pretrained = False 
 if pretrained:
     features = np.load('LASSO_SelectedFeatures.npy')[:num_features_selected,2]
     matrices = []
