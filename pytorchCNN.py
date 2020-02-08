@@ -92,8 +92,8 @@ filter_size = 6
 net = CNNnet(num_features_selected,filter_size).to(computing_device)
 net.apply(weights_init)
 
-#pretrained = True 
-pretrained = False 
+#pretrained = True
+pretrained = False
 if pretrained:
     features = np.load('LASSO_SelectedFeatures.npy')[:num_features_selected,2]
     matrices = []
@@ -106,6 +106,8 @@ if pretrained:
 print(net)
 
 #criterion = nn.MSELoss()
+
+l1_alpha = 1e-4
 
 def criterion(y,yhat,weights):
     loss = nn.MSELoss()(y,yhat) + l1_alpha*torch.norm(weights,1)
@@ -152,7 +154,7 @@ for e in range(epochs):
         loss.backward()
         optimizer.step()
         batch_count += 1
-    #print(net.main[0].weight[0]) 
+    #print(net.main[0].weight[0])
     #train_result = evaluate(net,train_X,train_Y,computing_device)
     print('Epoch {}, Train Batch Loss: {}, '.format(e,train_loss/batch_count))
     data[0].append(train_loss/batch_count)
