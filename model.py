@@ -49,16 +49,16 @@ class CNNnet(nn.Module):
                         bias=False), 
 
             nn.ReLU(inplace=True),
-            nn.MaxPool1d(20), 
-            nn.BatchNorm1d(num_filt),
-            nn.Conv1d(num_filt, 
-                      num_filters[1], 
-                      filter_size[1],
-                      stride=stride[1], 
-                      padding=padding[1], 
-                      bias=False),
+            #nn.MaxPool1d(20), 
+            #nn.BatchNorm1d(num_filt),
+            #nn.Conv1d(num_filt, 
+            #          num_filters[1], 
+            #          filter_size[1],
+            #          stride=stride[1], 
+            #          padding=padding[1], 
+            #          bias=False),
 
-            nn.ReLU(inplace=True),
+            #nn.ReLU(inplace=True),
             #nn.Conv1d(num_filters[1],  
             #          num_filters[2], 
             #          filter_size[2], 
@@ -92,10 +92,10 @@ class CNNnet(nn.Module):
 
         # CNN Output Dim = (Size + 2 * padding - kernal_size)/Stride + 1
         self.fc = nn.Sequential(
-            nn.BatchNorm1d(num_filters[1]),
-            nn.Dropout(p=0.25),
+            #nn.BatchNorm1d(num_filters[0]),
+            #nn.Dropout(p=0.25),
             #nn.ReLU(inplace=True),
-            nn.Linear(num_filters[-1],1),
+            nn.Linear(num_filt,1),
         )
 
     def num_flat_features(self, inputs):
@@ -117,5 +117,5 @@ class CNNnet(nn.Module):
         x = torch.mean(x.view(x.size(0), x.size(1), -1), dim=2)
         #print(val,x[0,0])
         x = x.view(-1, self.num_flat_features(x))
-        return torch.sigmoid(self.fc(x))
+        return self.fc(x)
         #return torch.sigmoid(self.fc(x))

@@ -86,14 +86,14 @@ val_Y = Y[val_indices]
 
 epochs = 500
 
-num_features_selected = 32
+num_features_selected = 128
 filter_size = 6
 
 net = CNNnet(num_features_selected,filter_size).to(computing_device)
 net.apply(weights_init)
 
-#pretrained = True 
-pretrained = False 
+pretrained = True 
+#pretrained = False 
 if pretrained:
     features = np.load('LASSO_SelectedFeatures.npy')[:num_features_selected,2]
     matrices = []
@@ -108,7 +108,7 @@ print(net)
 criterion = nn.MSELoss()
 
 #Instantiate the gradient descent optimizer - use Adam optimizer with default parameters
-optimizer = optim.Adam(net.parameters(),lr = 0.0003)
+optimizer = optim.Adam(net.parameters(),lr = 0.005)
 
 print(train_X.shape,train_Y.shape,val_X.shape,val_Y.shape)
 data = [[],[]]
@@ -143,7 +143,7 @@ for e in range(epochs):
         loss.backward()
         optimizer.step()
         batch_count += 1
-    
+    print(net.main[0].weight[0]) 
     #train_result = evaluate(net,train_X,train_Y,computing_device)
     print('Epoch {}, Train Batch Loss: {}, '.format(e,train_loss/batch_count))
     data[0].append(train_loss/batch_count)
@@ -169,7 +169,7 @@ for e in range(epochs):
         print('\rEpoch {}, Val Loss: {}, Val R2 Score:{}'.format(e,val_loss/batch_count, val_result[1]))
         data[1].append(val_loss/batch_count)
         if pretrained:
-            np.save('results/pytorchResultsPretrainedFilters{}Size{}.npy'.format(num_features_selected,num_filters), np.array(data))
+            np.save('results/pytorchResultsPretrainedFilters{}Size{}.npy'.format(num_features_selected,filter_size), np.array(data))
         else:
             np.save('results/pytorchResultsFilters{}Size{}.npy'.format(num_features_selected,filter_size), np.array(data))
 
@@ -178,7 +178,7 @@ for e in range(epochs):
             best_val = val_loss/batch_count
             best_val_epoch = e
             if pretrained:
-                torch.save(net.state_dict(),'model_files/PretrainedFilters{}Size{}.pt'.format(num_features_selected,num_filters))
+                torch.save(net.state_dict(),'model_files/PretrainedFilters{}Size{}.pt'.format(num_features_selected,filter_size))
             else:
                 torch.save(net.state_dict(),'model_files/Filters{}Size{}.npy'.format(num_features_selected,filter_size))
         elif e  - best_val_epoch > 10:
