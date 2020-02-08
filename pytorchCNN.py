@@ -141,7 +141,7 @@ for e in range(epochs):
         #print(x.shape,outputs.shape,y.shape)
         #train_pred.append(outputs.item())
         #print(outputs.shape,y.float().shape)
-        loss = torch.sqrt(criterion(outputs,y.float(),net.main))
+        loss = torch.sqrt(criterion(outputs,y.float(),net.main.weight))
         #print(loss)
         #regularization_loss = 0
         #for param in net.parameters():
@@ -168,7 +168,7 @@ for e in range(epochs):
             else:
                 y = torch.tensor(val_Y[i*batch_size:(i+1)*batch_size]).view(-1,1).to(computing_device)
             outputs = net(x.float())
-            loss = torch.sqrt(criterion(outputs,y.float()))
+            loss = torch.sqrt(criterion(outputs,y.float(),net.main.weight))
             val_loss += loss.item()
             batch_count += 1
 
