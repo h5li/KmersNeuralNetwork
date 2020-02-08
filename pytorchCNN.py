@@ -92,8 +92,8 @@ filter_size = 6
 net = CNNnet(num_features_selected,filter_size).to(computing_device)
 net.apply(weights_init)
 
-pretrained = True 
-#pretrained = False 
+#pretrained = True 
+pretrained = False 
 if pretrained:
     features = np.load('LASSO_SelectedFeatures.npy')[:num_features_selected,2]
     matrices = []
@@ -105,7 +105,16 @@ if pretrained:
 
 print(net)
 
-criterion = nn.MSELoss()
+#criterion = nn.MSELoss()
+
+def criterion(y,yhat,weights):
+    loss = nn.MSELoss()(y,yhat) + l1_alpha*torch.norm(weights,1)
+    return loss
+def Numparams(weights):
+    l1 = torch.sum(torch.abs(weights))
+    nparms = torch.sum(torch.abs(weights)>0)
+
+    return nparms.cpu().detach(), l1.cpu().detach()
 
 #Instantiate the gradient descent optimizer - use Adam optimizer with default parameters
 optimizer = optim.Adam(net.parameters(),lr = 0.005)
@@ -133,7 +142,7 @@ for e in range(epochs):
         #print(x.shape,outputs.shape,y.shape)
         #train_pred.append(outputs.item())
         #print(outputs.shape,y.float().shape)
-        loss = torch.sqrt(criterion(outputs,y.float()))
+        loss = torch.sqrt(criterion(outputs,y.float(),net.main.weight))
         #print(loss)
         #regularization_loss = 0
         #for param in net.parameters():
@@ -143,7 +152,7 @@ for e in range(epochs):
         loss.backward()
         optimizer.step()
         batch_count += 1
-    print(net.main[0].weight[0]) 
+    #print(net.main[0].weight[0]) 
     #train_result = evaluate(net,train_X,train_Y,computing_device)
     print('Epoch {}, Train Batch Loss: {}, '.format(e,train_loss/batch_count))
     data[0].append(train_loss/batch_count)
@@ -160,10 +169,10 @@ for e in range(epochs):
             else:
                 y = torch.tensor(val_Y[i*batch_size:(i+1)*batch_size]).view(-1,1).to(computing_device)
             outputs = net(x.float())
-            loss = torch.sqrt(criterion(outputs,y.float()))
+            loss = torch.sqrt(criterion(outputs,y.float(),net.main.weight))
             val_loss += loss.item()
             batch_count += 1
-    
+
     if not multiclass:
         val_result = evaluateCNN(net,val_X,val_Y,computing_device)
         print('\rEpoch {}, Val Loss: {}, Val R2 Score:{}'.format(e,val_loss/batch_count, val_result[1]))
@@ -184,15 +193,8 @@ for e in range(epochs):
         elif e  - best_val_epoch > 10:
             print("Stop, Best Validation:{:.4f}, Best Validation Epoch:{}".format(best_val,best_val_epoch))
             break
-            
+
         #val_result = evaluateCNN(net,val_X,val_Y,computing_device)
         #print('\rEpoch {}, Val Loss: {}, Val R2 Score:{}'.format(e,val_loss/batch_count, val_result[1]))
     else:
         evaluateMultiClassCNN(net,val_X,val_Y,computing_device)
-    
-
-
-
-
-
-
