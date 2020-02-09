@@ -119,7 +119,7 @@ def Numparams(weights):
     return nparms.cpu().detach(), l1.cpu().detach()
 
 #Instantiate the gradient descent optimizer - use Adam optimizer with default parameters
-optimizer = optim.Adam(net.parameters(),lr = 0.005)
+optimizer = optim.Adam(net.parameters(),lr = 0.01)
 
 print(train_X.shape,train_Y.shape,val_X.shape,val_Y.shape)
 data = [[],[]]

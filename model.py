@@ -33,8 +33,8 @@ class Net(nn.Module):
             num_features *= s
         return num_features
 
-num_filters = [64,3]
-filter_size = [6,6]
+num_filters = [256,128]
+filter_size = [6,3]
 stride = [1,1]
 padding = [1,1]
 
@@ -42,21 +42,21 @@ class CNNnet(nn.Module):
     def __init__(self,num_filt,filt_size):
         super(CNNnet, self).__init__()
         self.main = nn.Sequential(
-            nn.Conv1d(4, num_filt, 
-                        filt_size, 
+            nn.Conv1d(4, num_filters[0], 
+                        filter_size[0], 
                         stride=stride[0], 
                         padding=padding[0], 
-                        bias=False), 
+                        bias=True), 
 
             nn.ReLU(inplace=True),
             #nn.MaxPool1d(20), 
             #nn.BatchNorm1d(num_filt),
-            #nn.Conv1d(num_filt, 
+            #nn.Conv1d(num_filters[0], 
             #          num_filters[1], 
             #          filter_size[1],
             #          stride=stride[1], 
             #          padding=padding[1], 
-            #          bias=False),
+            #          bias=True),
 
             #nn.ReLU(inplace=True),
             #nn.Conv1d(num_filters[1],  
@@ -92,10 +92,10 @@ class CNNnet(nn.Module):
 
         # CNN Output Dim = (Size + 2 * padding - kernal_size)/Stride + 1
         self.fc = nn.Sequential(
-            #nn.BatchNorm1d(num_filters[0]),
+            nn.BatchNorm1d(num_filters[0]),
             #nn.Dropout(p=0.25),
             #nn.ReLU(inplace=True),
-            nn.Linear(num_filt,1),
+            nn.Linear(num_filters[0],1),
         )
 
     def num_flat_features(self, inputs):
